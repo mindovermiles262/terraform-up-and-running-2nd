@@ -7,7 +7,8 @@ resource "aws_s3_bucket" "tf_state" {
   bucket = "aduss-tfur-state"
 
   lifecycle {
-    prevent_destroy = true
+    # prevent_destroy = true
+    prevent_destroy = false
   }
 
   versioning {
@@ -36,16 +37,16 @@ resource "aws_dynamodb_table" "tf_locks" {
 }
 
 
-terraform {
-  backend "s3" {
-    bucket = "aduss-tfur-state"
-    key    = "global/s3/terraform.tfstate"
-    region = "us-west-2"
+# terraform {
+#   backend "s3" {
+#     bucket = "aduss-tfur-state"
+#     key    = "global/s3/terraform.tfstate"
+#     region = "us-west-2"
 
-    dynamodb_table = "aduss_tfur_locks"
-    encrypt        = true
-  }
-}
+#     dynamodb_table = "aduss_tfur_locks"
+#     encrypt        = true
+#   }
+# }
 
 
 output "s3_bucket_arn" {

@@ -19,3 +19,7 @@ Removing/Deleting the TF Backend is the opposite of setting it up. Again, it's a
 1. Run `terraform init` to copy the state back to your local machine.
 1. Run `terraform destroy` to remove the S3 bucket and the DynamoDB
 
+* Note
+
+You may also need to change the S3 bucket's `lifecycle` policy to allow destruction
+
