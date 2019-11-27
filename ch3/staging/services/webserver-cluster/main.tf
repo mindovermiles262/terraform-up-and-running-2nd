@@ -3,6 +3,18 @@ provider "aws" {
 }
 
 
+terraform {
+  backend "s3" {
+    bucket = "aduss-tfur-state"
+    key    = "staging/services/webserver-cluster/terraform.tfstate"
+    region = "us-west-2"
+
+    dynamodb_table = "aduss_tfur_locks"
+    encrypt        = true
+  }
+}
+
+
 # Allow inbound TCP traffic on $SERVER_PORT
 resource "aws_security_group" "tf_webserver_dmz" {
   description = "TF Webserver DMZ. Allow ${var.server_port}/TCP"
