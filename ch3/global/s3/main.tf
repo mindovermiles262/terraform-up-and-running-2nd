@@ -4,7 +4,8 @@ provider "aws" {
 
 
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "aduss-tfur-state"
+  bucket        = "aduss-tfur-state"
+  force_destroy = true
 
   lifecycle {
     # prevent_destroy = true
