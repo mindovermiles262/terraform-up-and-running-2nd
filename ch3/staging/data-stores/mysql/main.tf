@@ -14,12 +14,13 @@ terraform {
 }
 
 resource "aws_db_instance" "tf_db" {
-  identifier_prefix = "terraform-up-and-running"
-  engine            = "mysql"
-  allocated_storage = 10
-  instance_class    = "db.t2.micro"
-  name              = "TF_Database"
-  username          = "admin"
-  password          = var.db_password
+  identifier_prefix   = "terraform-up-and-running"
+  engine              = "mysql"
+  allocated_storage   = 10
+  instance_class      = "db.t2.micro"
+  name                = "TF_Database"
+  username            = "admin"
+  password            = var.db_password
+  skip_final_snapshot = true
 }
 
