@@ -3,6 +3,17 @@ provider "aws" {
 }
 
 
+data "terraform_remote_state" "tf_db" {
+  backend = "s3"
+
+  config = {
+    bucket = "aduss-tfur-state"
+    key    = "staging/data-stores/mysql/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
+
 terraform {
   backend "s3" {
     bucket = "aduss-tfur-state"
@@ -62,16 +73,23 @@ data "aws_subnet_ids" "default" {
 }
 
 
+data "template_file" "user_data" {
+  template = file("user-data.sh")
+
+  vars = {
+    server_port = var.server_port
+    db_fqdn     = data.terraform_remote_state.tf_db.outputs.db_address # output names match the outputs.tf names in mysql/outputs.tf
+    db_port     = data.terraform_remote_state.tf_db.outputs.db_port
+  }
+}
+
+
 # Launch Configuration
 resource "aws_launch_configuration" "tf_cluster" {
   image_id        = "ami-06d51e91cea0dac8d" #=> Ubuntu 18.04LTS
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.tf_webserver_dmz.id]
-  user_data       = <<-EOF
-                    #!/bin/bash
-                    echo "Terraform Cluster" > index.html
-                    nohup busybox httpd -f -p ${var.server_port} &
-                    EOF
+  user_data       = data.template_file.user_data.rendered
   lifecycle {
     create_before_destroy = true
   }

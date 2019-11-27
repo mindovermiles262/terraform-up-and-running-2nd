@@ -20,10 +20,6 @@ resource "aws_db_instance" "tf_db" {
   instance_class    = "db.t2.micro"
   name              = "TF_Database"
   username          = "admin"
-  password          = data.aws_secrets_manager_secret_version.db_password.secret_string
-}
-
-resource "aws_secrets_manager_secret_version" "db_password" {
-  secret_id = "mysql-master-password-staging"
+  password          = var.db_password
 }
 
