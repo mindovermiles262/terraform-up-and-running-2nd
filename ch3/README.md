@@ -6,7 +6,7 @@ There is no way to set this up in one shot, so a two step approach is needed.
 
 ### Setting up the TF Backend
 
-1. Make sure the `terraform` resource block is commented out inside `main.tf`
+1. Make sure the `terraform` resource block is commented out inside `global/s3/main.tf`
 1. Run `terraform apply`. This will create the S3 and DynamoDB resources you need.
 1. Uncomment the `terraform` resource block inside `main.tf`
 1. Run `terraform init` to initialize the backend. TF will prompt you for a 'yes'
