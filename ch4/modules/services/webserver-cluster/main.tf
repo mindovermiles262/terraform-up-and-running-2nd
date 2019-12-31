@@ -43,25 +43,34 @@ resource "aws_security_group" "tf_webserver_dmz" {
 }
 
 
-# Allow Inbound 80/TCP to ALB
 resource "aws_security_group" "tf_alb" {
   description = "TF ALB DMZ. Allow 80/TCP (HTTP)"
   name        = "${var.cluster_name}-alb-sg"
+}
 
-  ingress {
-    from_port   = local.http_port
-    to_port     = local.http_port
-    protocol    = local.tcp_protocol
-    cidr_blocks = local.all_ips
-  }
 
-  # Allow all outbound for LB Health Checks
-  egress {
-    from_port   = local.any_port
-    to_port     = local.any_port
-    protocol    = local.any_protocol
-    cidr_blocks = local.all_ips
-  }
+# Separate SG rules
+# Allow inbound 80/TCP to ALB
+resource "aws_security_group_role" "allow_http_ingress" {
+  type              = "ingress"
+  security_group_id = aws_security_group.tf_alb.id
+
+  from_port   = local.http_port
+  to_port     = local.http_port
+  protocol    = local.tcp_protocol
+  cidr_blocks = local.all_ips
+}
+
+
+# Allow egress from anywhere
+resource "aws_security_group_role" "allow_all_egress" {
+  type              = "egress"
+  security_group_id = aws_security_group.tf_alb.id
+
+  from_port   = local.any_port
+  to_port     = local.any_port
+  protocol    = local.any_protocol
+  cidr_blocks = local.all_ips
 }
 
 
