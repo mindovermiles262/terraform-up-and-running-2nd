@@ -7,7 +7,7 @@ module "webserver_cluster" {
 
   cluster_name           = "webservers-staging"
   db_remote_state_bucket = "aduss-tfur-state"
-  db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
+  db_remote_state_key    = "staging/data-stores/mysql/terraform.tfstate"
 
   instance_type = "t2.micro"
   min_size      = 2

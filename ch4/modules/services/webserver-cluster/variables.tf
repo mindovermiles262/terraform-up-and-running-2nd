@@ -29,7 +29,7 @@ variable "min_size" {
   type        = number
 }
 
-variable "min_size" {
+variable "max_size" {
   description = "The maximum number of instances in the cluster"
   type        = number
 }

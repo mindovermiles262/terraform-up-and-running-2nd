@@ -20,6 +20,14 @@ terraform {
   }
 }
 
+locals {
+  http_port    = 80
+  any_port     = 0
+  any_protocol = "-1"
+  tcp_protocol = "tcp"
+  all_ips      = ["0.0.0.0/0"]
+}
+
 
 # Allow inbound TCP traffic on $SERVER_PORT
 resource "aws_security_group" "tf_webserver_dmz" {
@@ -41,18 +49,18 @@ resource "aws_security_group" "tf_alb" {
   name        = "${var.cluster_name}-alb-sg"
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = local.http_port
+    to_port     = local.http_port
+    protocol    = local.tcp_protocol
+    cidr_blocks = local.all_ips
   }
 
   # Allow all outbound for LB Health Checks
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = local.any_port
+    to_port     = local.any_port
+    protocol    = local.any_protocol
+    cidr_blocks = local.all_ips
   }
 }
 
@@ -69,7 +77,7 @@ data "aws_subnet_ids" "default" {
 
 
 data "template_file" "user_data" {
-  template = file("./user-data.sh")
+  template = file("${path.module}/user-data.sh")
 
   vars = {
     server_port = var.server_port
@@ -107,7 +115,7 @@ resource "aws_autoscaling_group" "tf_autoscale" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-tf_cluster"
+    value               = var.cluster_name
     propagate_at_launch = true
   }
 }
@@ -125,7 +133,7 @@ resource "aws_lb" "tf_alb" {
 # Create 'listener' for ALB
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.tf_alb.arn
-  port              = 80
+  port              = local.http_port
   protocol          = "HTTP"
 
   # Set Default action to return 404
@@ -160,7 +168,7 @@ resource "aws_lb_listener_rule" "fwd_to_tf_tg" {
 
 # Create Target Groups for ASG
 resource "aws_lb_target_group" "tf_tg" {
-  name     = "${var.cluster_name}-asg-targetgroup"
+  name     = "${var.cluster_name}-asg-target"
   port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
